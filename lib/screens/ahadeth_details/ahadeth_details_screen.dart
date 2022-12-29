@@ -1,74 +1,53 @@
-import 'package:eslami_project/screens/sura_details/sura_details_arguments.dart';
+import 'package:eslami_project/providers/settingsProvider.dart';
+import 'package:eslami_project/screens/home/hadeth/hadeth_tap.dart';
 import 'package:eslami_project/theme_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
-class SuraDetailsScreen extends StatefulWidget {
-  static String routeName = "sura details";
+class HadethDetailsScreen extends StatefulWidget {
+  static String routeName = "hadeth details";
 
   @override
-  State<SuraDetailsScreen> createState() => _SuraDetailsScreenState();
+  State<HadethDetailsScreen> createState() => _HadethDetailsScreenState();
 }
 
-class _SuraDetailsScreenState extends State<SuraDetailsScreen> {
-  ///content will view sura as block so we will split content => HERE
-  //String content="";
-  ///HERE
-  List<String> suraLines = [];
+class _HadethDetailsScreenState extends State<HadethDetailsScreen> {
   @override
   Widget build(BuildContext context) {
-    var args =
-        ModalRoute.of(context)!.settings.arguments as SuraDetailsArguments;
-    if (suraLines.isEmpty) {
-      readFile(args.fileName);
-    }
+    SettingsProvider provider=Provider.of(context);
+    var argsHadeth = ModalRoute.of(context)!.settings.arguments as AhadethModel;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           image: DecorationImage(
-              image: AssetImage("assets/default_bg.png"), fit: BoxFit.cover)),
+              image:provider.currentTheme==ThemeMode.light?
+              AssetImage("assets/default_bg.png"):AssetImage("assets/dark_bg.png"), fit: BoxFit.cover)),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.transparent,
           title: Text(
-            "سورة ${args.suraName}",
-            style: const TextStyle(
-                fontSize: 30,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: "El Messiri"),
+            argsHadeth.title,
+            style:Theme.of(context).textTheme.titleMedium,
           ),
           centerTitle: true,
         ),
-        // body: Text(args.fileName),
-        //body: SingleChildScrollView(child: Text(content)),
-        body:
-        ListView.builder(
-            itemBuilder: (_, index) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text("${suraLines[index]}${{index+1}}",style: TextStyle(fontSize: 20,color: ThemeHelper.accentColor),
-                    textAlign: TextAlign.center,
-                    textDirection: TextDirection.rtl,),
-                    //Divider(thickness: 3,)
-                  ],
-                ),
-              );
-            },
-            itemCount: suraLines.length),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 25,),
+                Text((argsHadeth.content),style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.rtl,),
+                //Divider(thickness: 3,)
+              ],
+            ),
+          ),
+        ),
       ),
     );
-  }
-
-  readFile(String fileName) async {
-    String fileContent = await rootBundle.loadString("assets/files/$fileName");
-    //content = fileContent;
-    suraLines = fileContent.split("\n");
-    suraLines=suraLines.where((line) => line.trim().isNotEmpty).toList();
-    setState(() {});
-    //print(content);
   }
 }
